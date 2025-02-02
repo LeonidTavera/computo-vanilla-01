@@ -3,6 +3,7 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     updateDoc,
     deleteDoc,
     doc 
@@ -35,6 +36,22 @@ const loadProducts = async () => {
     `
     productTable.appendChild(row)
     })
+
+    // agregamos eventos a los botones
+    document.querySelectorAll('.edit-product').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const productId = e.target.closest('.edit-product').dataset.id
+            openEditDialog(productId)
+        })  
+    })
+    
+    document.querySelectorAll('.delete-product').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const productId = e.target.closest('.delete-product').dataset.id
+            deleteProduct(productId)
+        })  
+    })
+    
 }
 
 // Funcion para agregar productos
@@ -52,5 +69,37 @@ addProductForm.addEventListener('submit',async (e) => {
      alert('Error al agregar el producto:' + error.message)   
     }
 } )
+
+const deleteProduct = async (id) => {
+    const confimation = confirm('Estas seguto?')
+    if (confimation) {
+        try {
+            await deleteDoc(doc(db,'products', id))
+            alert('Se ha borrado correctamente')
+            loadProducts()
+        } catch (error) {
+            alert('Error al eliminar el producto' + error.message)
+        }
+    }
+}
+
+const openEditDialog = async (id) => {
+    const  producto = doc(db, 'products', id)
+    const productData = (await getDoc(producto)).data()
+    const newStock = prompt(
+     `
+     Editando Producto: ${productData.name} \nCantidad Actal:${productData.stock}\n Ingresa la Nueva Cantidad:
+     `, productData.stock  
+    )
+    if (newStock !== null){
+      try {
+        await updateDoc(producto, { stock: parseInt(newStock)})
+        alert('Actualizado correctamente')
+        loadProducts()
+      } catch (error) {
+        alert('Error al actualizar el producto' + error.message)
+      }
+    }
+}
 
 loadProducts()

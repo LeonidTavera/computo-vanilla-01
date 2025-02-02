@@ -39,6 +39,6 @@ document.getElementById('registerForm')?.addEventListener('submit', async (e) =>
 await signOut(auth)
 window.location.href = 'index.html'
         } catch (error) {
-alert('Error al cerrar sesion'+ error.message)
+alert('Error al cerrar sesion: '+ error.message)
         }
     })
